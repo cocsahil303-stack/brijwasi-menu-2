@@ -484,6 +484,47 @@ const io = new IntersectionObserver((entries) => {
 document.querySelectorAll(".trigger").forEach(el => io.observe(el));
 
 plateHolder.addEventListener("click", () => window.open(LINK, "_blank"));
+
+/* ---------- Deterministic one-swipe-per-dish paging for touch devices ---------- */
+const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+
+if (isCoarsePointer){
+  const totalPages = 1 + items.length + 1; // intro + each item + outro
+  let touchStartY = 0;
+  let isAnimating = false;
+  let animLockTimer = null;
+
+  function currentPageIndex(){
+    return Math.round(window.scrollY / window.innerHeight);
+  }
+
+  function goToPage(idx){
+    const clamped = Math.max(0, Math.min(totalPages - 1, idx));
+    isAnimating = true;
+    window.scrollTo({ top: clamped * window.innerHeight, behavior: "smooth" });
+    clearTimeout(animLockTimer);
+    animLockTimer = setTimeout(() => { isAnimating = false; }, 550);
+  }
+
+  window.addEventListener("touchstart", (e) => {
+    if (isAnimating) return;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  window.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+  }, { passive: false });
+
+  window.addEventListener("touchend", (e) => {
+    if (isAnimating) return;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaY = touchStartY - touchEndY;
+    const threshold = 30;
+    if (Math.abs(deltaY) < threshold) return;
+    const dir = deltaY > 0 ? 1 : -1;
+    goToPage(currentPageIndex() + dir);
+  }, { passive: true });
+}
 </script>
 </body>
 </html>
