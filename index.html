@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brijwasi Chat Bhandar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;1,500&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --olive: #6b7a4a;
+    --olive-deep: #4d5936;
+    --cream: #f4ecd8;
+    --cream-dim: #d8cba9;
+    --plate: #efe6d2;
+    --choco: #2c2417;
+    --accent: #c9553a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0;}
+  body{
+    background: linear-gradient(180deg, var(--olive) 0%, var(--olive-deep) 100%);
+    color:var(--cream);
+    font-family:'Quicksand', sans-serif;
+    overflow-x:hidden;
+    scroll-snap-type: y mandatory;
+  }
+
+  /* ---------- TOP NAV ---------- */
+  .nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 26px;
+    pointer-events:none;
+  }
+  .nav .logo{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-style:italic;
+    font-size:20px;
+    color:var(--cream);
+    letter-spacing:0.02em;
+    pointer-events:auto;
+  }
+  .nav .cart-btn{
+    pointer-events:auto;
+    background:var(--choco);
+    color:var(--cream);
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    font-size:18px;
+    box-shadow:0 6px 18px -8px rgba(0,0,0,0.5);
+    transition: transform 0.25s ease;
+  }
+  .nav .cart-btn:active{ transform:scale(0.9); }
+
+  /* ---------- STICKY HERO STAGE ---------- */
+  .stage-wrap{
+    position:relative;
+  }
+  .stage{
+    position:sticky;
+    top:0;
+    height:100vh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .mountain{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:38%;
+    background: radial-gradient(ellipse 90% 100% at 50% 100%, rgba(0,0,0,0.28), transparent 70%),
+                linear-gradient(180deg, transparent, rgba(0,0,0,0.18));
+    filter: blur(2px);
+    z-index:1;
+  }
+
+  .plate-holder{
+    position:relative;
+    z-index:3;
+    width:min(78vw, 340px);
+    aspect-ratio:1/1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .plate{
+    position:relative;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    overflow:hidden;
+    box-shadow:
+      0 30px 60px -20px rgba(0,0,0,0.5),
+      inset 0 0 0 10px rgba(255,255,255,0.4),
+      inset 0 0 0 12px rgba(0,0,0,0.05);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .food-emoji{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(.34,1.4,.4,1), opacity 0.35s ease;
+    position:absolute;
+    top:0;
+    left:0;
+  }
+  .food-emoji.swap{
+    animation: swapIn 0.45s cubic-bezier(.34,1.4,.4,1);
+  }
+  .food-emoji.hidden{
+    opacity:0;
+  }
+  @keyframes swapIn{
+    0%{ transform: scale(0.4) rotate(-25deg); opacity:0; }
+    60%{ transform: scale(1.12) rotate(6deg); opacity:1; }
+    100%{ transform: scale(1) rotate(0deg); opacity:1; }
+  }
+
+  .price-tag{
+    position:absolute;
+    bottom:2%;
+    right:-4%;
+    z-index:4;
+    background:var(--cream);
+    color:var(--choco);
+    border-radius:14px;
+    padding:10px 14px 10px;
+    text-align:center;
+    box-shadow:0 14px 26px -10px rgba(0,0,0,0.5);
+    min-width:64px;
+    transform: rotate(-8deg);
+    transition: transform 0.3s ease;
+  }
+  .price-tag:hover{ transform: rotate(-4deg) scale(1.04); }
+  .price-tag .amt{
+    font-weight:700;
+    font-size:14px;
+    display:block;
+    white-space:nowrap;
+  }
+  .price-tag a{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:7px;
+    text-decoration:none;
+    color:var(--cream);
+    background:var(--choco);
+    width:26px; height:26px;
+    border-radius:50%;
+    font-size:12px;
+    margin-left:auto;
+    margin-right:auto;
+    transition: transform 0.25s ease;
+  }
+  .price-tag a:active{ transform:scale(0.85); }
+
+  /* floating ingredient cards around the plate */
+  .float-card{
+    position:absolute;
+    z-index:2;
+    width:64px; height:64px;
+    background: var(--cream);
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    box-shadow:0 14px 24px -12px rgba(0,0,0,0.4);
+    transition: transform 0.6s cubic-bezier(.2,1,.3,1), opacity 0.4s ease;
+  }
+  .float-card.a{ top:14%; left:6%; transform:rotate(-14deg); }
+  .float-card.b{ top:8%; right:8%; transform:rotate(11deg); }
+  .float-card.c{ bottom:16%; left:2%; transform:rotate(9deg); }
+  .float-card.d{ bottom:10%; right:4%; transform:rotate(-10deg); }
+
+  .headline{
+    position:absolute;
+    bottom:6%;
+    left:0; right:0;
+    text-align:center;
+    z-index:3;
+    padding:0 20px;
+  }
+  .headline .name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(24px, 6vw, 36px);
+    color:var(--cream);
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    transition: opacity 0.35s ease, transform 0.4s ease;
+  }
+  .headline .caption{
+    font-size:11px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--cream-dim);
+    margin-top:10px;
+  }
+
+  .progress-dots{
+    position:absolute;
+    right:16px;
+    top:50%;
+    transform:translateY(-50%);
+    z-index:5;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+  }
+  .progress-dots span{
+    width:6px; height:6px;
+    border-radius:50%;
+    background: rgba(244,236,216,0.35);
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+  .progress-dots span.active{
+    background: var(--cream);
+    transform:scale(1.5);
+  }
+
+  .swipe-hint{
+    position:absolute;
+    top:14px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:5;
+    font-size:10.5px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--cream-dim);
+    opacity:0.85;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{ transform:translate(-50%,0); }
+    50%{ transform:translate(-50%,4px); }
+  }
+
+  /* invisible scroll triggers, one per item */
+  .trigger{
+    height:100vh;
+    width:100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* ---------- Intro & outro ---------- */
+  .intro, .outro{
+    position:relative;
+    z-index:3;
+    text-align:center;
+    padding:120px 24px 60px;
+    scroll-snap-align: start;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .intro .badge{
+    font-size:11px;
+    letter-spacing:0.25em;
+    text-transform:uppercase;
+    color:var(--cream-dim);
+    margin-bottom:16px;
+  }
+  .intro h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-style:italic;
+    font-size:clamp(38px,10vw,64px);
+    margin:0;
+    line-height:1.05;
+    color:var(--cream);
+  }
+  .intro .tag{
+    margin-top:16px;
+    font-size:14px;
+    color:var(--cream-dim);
+    font-style:italic;
+  }
+  .scroll-cta{
+    margin-top:34px;
+    font-size:11px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--cream-dim);
+  }
+
+  .outro{
+    padding:70px 24px 100px;
+  }
+  .outro .cta{
+    display:inline-block;
+    text-decoration:none;
+    color:var(--olive-deep);
+    background:var(--cream);
+    font-weight:700;
+    letter-spacing:0.06em;
+    font-size:13px;
+    text-transform:uppercase;
+    padding:16px 30px;
+    border-radius:999px;
+    box-shadow:0 14px 30px -12px rgba(0,0,0,0.5);
+    transition: transform 0.25s ease;
+  }
+  .outro .cta:active{ transform:scale(0.96); }
+  .outro .note{
+    margin-top:24px;
+    font-size:12px;
+    color:var(--cream-dim);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="logo">Brijwasi</div>
+  <a class="cart-btn" href="#" id="navCart" target="_blank" rel="noopener">🛒</a>
+</div>
+
+<div class="intro">
+  <div class="badge">Homemade with love</div>
+  <h1>Brijwasi<br>Chat Bhandar</h1>
+  <div class="tag">scroll down — watch the plate fill up</div>
+  <div class="scroll-cta">↓ swipe to explore ↓</div>
+</div>
+
+<div class="stage-wrap" id="stageWrap">
+  <div class="stage">
+    <div class="mountain"></div>
+    <div class="swipe-hint">swipe through the menu</div>
+
+    <div class="float-card a" id="cardA">🌿</div>
+    <div class="float-card b" id="cardB">🍅</div>
+    <div class="float-card c" id="cardC">🌶️</div>
+    <div class="float-card d" id="cardD">🧅</div>
+
+    <div class="plate-holder">
+      <div class="plate">
+        <img class="food-emoji" id="foodEmoji" src="images/mix-chat.jpg" alt="dish on plate">
+      </div>
+      <div class="price-tag">
+        <span class="amt" id="priceAmt">₹70</span>
+        <a href="#" id="tagCart" target="_blank" rel="noopener">🛒</a>
+      </div>
+    </div>
+
+    <div class="headline">
+      <div class="name" id="itemName">Mix Chat</div>
+      <div class="caption">tap plate to order</div>
+    </div>
+
+    <div class="progress-dots" id="progressDots"></div>
+  </div>
+
+  <!-- scroll triggers, one per item -->
+  <div id="triggers"></div>
+</div>
+
+<div class="outro">
+  <a class="cta" href="#" id="outroCta" target="_blank" rel="noopener">Order Now</a>
+  <div class="note">All prices in ₹ &middot; Disposal charges extra &middot; made with love</div>
+</div>
+
+<script>
+const LINK = "https://share.google/qTzKsk8J3nyafrvM2";
+document.getElementById("navCart").href = LINK;
+document.getElementById("outroCta").href = LINK;
+document.getElementById("tagCart").href = LINK;
+
+const items = [
+  { name: "Mix Chat", price: "70", img: "images/mix-chat.jpg", ing: ["🌿","🍅","🌶️","🧅"] },
+  { name: "Bun Tikki", price: "70", img: "images/bun-tikki.jpg", ing: ["🥔","🌿","🍅","🧄"] },
+  { name: "Aloo Tikki", price: "70 / 40", img: "images/aloo-tikki.jpg", ing: ["🌶️","🧅","🍋","🌿"] },
+  { name: "Papri Chat", price: "70", img: "images/papri-chat.jpg", ing: ["🥛","🌿","🍅","🧅"] },
+  { name: "Gol Gappe", price: "70", img: "images/gol-gappe.jpg", ing: ["💧","🌶️","🍋","🧂"] },
+  { name: "Spl. Dahi Bhalla", price: "70", img: "images/spl-dahi-bhalla.jpg", ing: ["🌿","🍇","🧂","🌶️"] },
+  { name: "Bhel Puri", price: "80 / 120", img: "images/bhel-puri.jpg", ing: ["🍅","🧅","🍋","🌿"] },
+  { name: "Dahi Puri", price: "100", img: "images/dahi-puri.jpg", ing: ["🥛","🌿","🍅","🧂"] },
+  { name: "Dahi Bhalla", price: "70 / 40", img: "images/dahi-bhalla.jpg", ing: ["🥛","🍇","🌶️","🌿"] },
+  { name: "Moong Pakori", price: "70", img: "images/moong-pakori.jpg", ing: ["🌿","🧅","🌶️","🍋"] },
+  { name: "Papri Pakori", price: "70", img: "images/papri-pakori.jpg", ing: ["🥔","🌿","🧅","🌶️"] },
+  { name: "Double Bun Tikki", price: "100", img: "images/double-bun-tikki.jpg", ing: ["🥔","🍅","🧄","🌿"] },
+  { name: "Kanji Glass", price: "20", img: "images/kanji-glass.jpg", ing: ["🥕","🌶️","🧂","💧"] },
+];
+
+const triggersEl = document.getElementById("triggers");
+const dotsEl = document.getElementById("progressDots");
+
+items.forEach((item, i) => {
+  const t = document.createElement("div");
+  t.className = "trigger";
+  t.dataset.index = i;
+  triggersEl.appendChild(t);
+
+  const dot = document.createElement("span");
+  if (i === 0) dot.classList.add("active");
+  dotsEl.appendChild(dot);
+});
+
+const foodEmoji = document.getElementById("foodEmoji");
+const itemName = document.getElementById("itemName");
+const priceAmt = document.getElementById("priceAmt");
+const cardA = document.getElementById("cardA");
+const cardB = document.getElementById("cardB");
+const cardC = document.getElementById("cardC");
+const cardD = document.getElementById("cardD");
+const dots = dotsEl.children;
+const plateHolder = document.querySelector(".plate-holder");
+
+let currentIndex = 0;
+
+function updatePlate(i){
+  if (i === currentIndex) return;
+  currentIndex = i;
+  const item = items[i];
+
+  foodEmoji.style.transition = "opacity 0.25s ease, transform 0.35s cubic-bezier(.34,1.4,.4,1)";
+  foodEmoji.style.opacity = 0;
+  foodEmoji.style.transform = "scale(0.85) rotate(-8deg)";
+
+  setTimeout(() => {
+    foodEmoji.src = item.img;
+    foodEmoji.style.opacity = 1;
+    foodEmoji.style.transform = "scale(1) rotate(0deg)";
+  }, 230);
+
+  itemName.style.opacity = 0;
+  itemName.style.transform = "translateY(8px)";
+  setTimeout(() => {
+    itemName.textContent = item.name;
+    itemName.style.opacity = 1;
+    itemName.style.transform = "translateY(0)";
+  }, 160);
+
+  priceAmt.textContent = "₹" + item.price;
+
+  cardA.textContent = item.ing[0];
+  cardB.textContent = item.ing[1];
+  cardC.textContent = item.ing[2];
+  cardD.textContent = item.ing[3];
+
+  [cardA, cardB, cardC, cardD].forEach((c, idx) => {
+    c.style.transform = c.style.transform + " scale(0.7)";
+    setTimeout(() => { c.style.transform = c.style.transform.replace(" scale(0.7)",""); }, 50 + idx*40);
+  });
+
+  Array.from(dots).forEach((d, idx) => d.classList.toggle("active", idx === i));
+}
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      updatePlate(Number(entry.target.dataset.index));
+    }
+  });
+}, { threshold: 0.55 });
+
+document.querySelectorAll(".trigger").forEach(el => io.observe(el));
+
+plateHolder.addEventListener("click", () => window.open(LINK, "_blank"));
+</script>
+</body>
+</html>
